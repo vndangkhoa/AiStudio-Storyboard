@@ -60,7 +60,7 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({
     const aspectClass = aspectRatio === AspectRatio.Landscape ? 'aspect-video' : 'aspect-[9/16]';
 
     return (
-        <main className={`p-4 rounded-lg shadow-inner overflow-y-auto transition-all duration-300 ${highlightedStep === 'create' ? 'ring-2 ring-blue-500 ring-offset-4 ring-offset-slate-100 dark:ring-offset-slate-900' : 'bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700'}`}>
+        <main className={`p-4 rounded-lg shadow-inner overflow-y-auto transition-all duration-300 h-full ${highlightedStep === 'create' ? 'ring-2 ring-blue-500 ring-offset-4 ring-offset-slate-100 dark:ring-offset-slate-900' : 'bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700'}`}>
             <h2 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">🎨 {t('canvasTitle')}</h2>
             {scenes.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center text-slate-500 dark:text-slate-400">

@@ -90,7 +90,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
     );
 
     return (
-        <aside className="bg-white dark:bg-slate-800/50 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col space-y-4">
+        <aside className="bg-white dark:bg-slate-800/50 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col space-y-4 h-full">
              <div className="flex-1 overflow-y-auto -mr-2 pr-2 space-y-4">
                 {/* Video Analysis Section */}
                 <div className="border border-slate-200 dark:border-slate-700 rounded-lg">

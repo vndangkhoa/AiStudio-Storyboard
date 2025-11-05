@@ -47,7 +47,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
     const totalDuration = scenes.reduce((acc, scene) => acc + scene.duration, 0);
 
     return (
-        <aside className="bg-white dark:bg-slate-800/50 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col space-y-4">
+        <aside className="bg-white dark:bg-slate-800/50 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col space-y-4 h-full">
             
             {showOnboarding && (
                 <OnboardingChecklist 
