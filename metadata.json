@@ -1,0 +1,5 @@
+{
+  "name": "AI Video Storyboard Builder",
+  "description": "An AI-powered studio to build video storyboards scene-by-scene. Upload assets, craft prompts, and generate a visual sequence for high-quality product videos.",
+  "requestFramePermissions": []
+}
