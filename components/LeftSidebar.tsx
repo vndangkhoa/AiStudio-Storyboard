@@ -17,10 +17,9 @@ interface LeftSidebarProps {
     onScenarioTypeChange: (type: ScenarioType) => void;
     // Onboarding
     showOnboarding: boolean;
-    onboardingStatus: { product: boolean; scenario: boolean; storyboard: boolean; create: boolean };
+    onboardingStatus: { product: boolean; storyboard: boolean; create: boolean };
     onDismissOnboarding: () => void;
-    onHighlightStep: (step: OnboardingStep | null) => void;
-    highlightedStep: OnboardingStep | null;
+    activeOnboardingStep: OnboardingStep | null;
 }
 
 const NextStepIndicator: React.FC<{isComplete: boolean, isActive: boolean}> = ({ isComplete, isActive }) => {
@@ -40,7 +39,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
     onAddScene, isAddingScene,
     aspectRatio, onAspectRatioChange,
     scenarioType, onScenarioTypeChange,
-    showOnboarding, onboardingStatus, onDismissOnboarding, onHighlightStep, highlightedStep
+    showOnboarding, onboardingStatus, onDismissOnboarding, activeOnboardingStep
 }) => {
     const { t } = useTranslation();
     const [openSceneId, setOpenSceneId] = React.useState<string | null>(null);
@@ -53,7 +52,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 <OnboardingChecklist 
                     status={onboardingStatus}
                     onDismiss={onDismissOnboarding}
-                    onHighlightStep={onHighlightStep}
+                    activeStep={activeOnboardingStep}
                 />
             )}
 
@@ -61,10 +60,10 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
             
             <div className="flex-1 overflow-y-auto -mr-2 pr-2 space-y-4">
                 {/* Controls */}
-                <div className={`space-y-4 p-2 rounded-md transition-all duration-300 ${highlightedStep === 'scenario' ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-100 dark:ring-offset-slate-900' : ''}`}>
+                <div className={`space-y-4 p-2 rounded-md transition-all duration-300 ${activeOnboardingStep === 'storyboard' ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-100 dark:ring-offset-slate-900' : ''}`}>
                     <div>
                         <h3 className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                            {showOnboarding && <NextStepIndicator isComplete={onboardingStatus.scenario} isActive={onboardingStatus.product && !onboardingStatus.storyboard} />}
+                            {showOnboarding && <NextStepIndicator isComplete={onboardingStatus.storyboard} isActive={activeOnboardingStep === 'storyboard'} />}
                             {t('scenarioType')}
                         </h3>
                         <div className="grid grid-cols-1 gap-2">
@@ -148,13 +147,13 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 )}
             </div>
 
-            <div className={`border-t border-slate-200 dark:border-slate-700 pt-4 p-2 rounded-md transition-all duration-300 ${highlightedStep === 'storyboard' ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-100 dark:ring-offset-slate-900' : ''}`}>
+            <div className={`border-t border-slate-200 dark:border-slate-700 pt-4 p-2 rounded-md transition-all duration-300 ${activeOnboardingStep === 'storyboard' ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-100 dark:ring-offset-slate-900' : ''}`}>
                  <button 
                     onClick={onGenerateScenes}
                     disabled={isGeneratingScenes || isAddingScene}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition"
                  >
-                    {showOnboarding && <div className="flex items-center"><NextStepIndicator isComplete={onboardingStatus.storyboard} isActive={onboardingStatus.product && onboardingStatus.scenario && !onboardingStatus.storyboard}/></div>}
+                    {showOnboarding && <div className="flex items-center"><NextStepIndicator isComplete={onboardingStatus.storyboard} isActive={activeOnboardingStep === 'storyboard'}/></div>}
                     <Sparkles className="h-4 w-4"/>
                     <span>{t('generateScenes')}</span>
                 </button>

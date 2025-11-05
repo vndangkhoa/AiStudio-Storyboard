@@ -11,7 +11,7 @@ interface RightSidebarProps {
     productDescription: string;
     onProductDescriptionChange: (description: string) => void;
     // Onboarding
-    highlightedStep: OnboardingStep | null;
+    activeOnboardingStep: OnboardingStep | null;
     onboardingStatus: { product: boolean };
     // Video Analysis
     onVideoUploadForAnalysis: (file: File) => void;
@@ -37,7 +37,7 @@ const NextStepIndicator: React.FC<{isComplete: boolean, isActive: boolean}> = ({
 const RightSidebar: React.FC<RightSidebarProps> = ({
     assets, onAssetUpload, onAssetDelete, onAssetLockToggle,
     productDescription, onProductDescriptionChange,
-    highlightedStep, onboardingStatus,
+    activeOnboardingStep, onboardingStatus,
     onVideoUploadForAnalysis, uploadedVideoUrl, onAnalyzeVideo, isAnalyzingVideo,
     videoAnalysisResult, onClearVideoAnalysis,
     sidebarActionProgress,
@@ -157,16 +157,16 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                 </div>
 
                 {/* Assets & Controls Section */}
-                <div className={`transition-all duration-300 ${highlightedStep === 'product' ? 'ring-2 ring-blue-500 ring-offset-4 ring-offset-slate-100 dark:ring-offset-slate-900' : ''}`}>
+                <div className={`transition-all duration-300 p-2 rounded-md ${activeOnboardingStep === 'product' ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-100 dark:ring-offset-slate-900' : ''}`}>
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">{t('assetsTitle')}</h2>
                     <div className="space-y-3">
                         <div>
                             <h3 className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                            <NextStepIndicator isComplete={onboardingStatus.product} isActive={!onboardingStatus.product} />
+                            <NextStepIndicator isComplete={onboardingStatus.product} isActive={activeOnboardingStep === 'product'} />
                             {t('productTitle')}
                             </h3>
                             <input type="file" accept="image/*" ref={productInputRef} onChange={(e) => handleFileChange(e, 'product')} className="hidden" />
-                            {productAsset ? <AssetCard asset={productAsset} /> : <UploadPlaceholder onClick={() => productInputRef.current?.click()} text={t('uploadProduct')} showIndicator={!onboardingStatus.product} />}
+                            {productAsset ? <AssetCard asset={productAsset} /> : <UploadPlaceholder onClick={() => productInputRef.current?.click()} text={t('uploadProduct')} showIndicator={activeOnboardingStep === 'product'} />}
                             {productAsset && (
                                 <div className="mt-2">
                                     <label htmlFor="product-description" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('productDescriptionLabel')}</label>

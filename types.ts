@@ -55,7 +55,7 @@ export enum ScenarioType {
   UGC = 'ugc',
 }
 
-export type OnboardingStep = 'product' | 'scenario' | 'storyboard' | 'create';
+export type OnboardingStep = 'product' | 'storyboard' | 'create';
 
 export interface AnalyzedScene {
   startTime: number;

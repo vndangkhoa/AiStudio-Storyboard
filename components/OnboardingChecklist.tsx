@@ -6,36 +6,35 @@ import { OnboardingStep } from '../types';
 interface OnboardingChecklistProps {
   status: {
     product: boolean;
-    scenario: boolean;
     storyboard: boolean;
     create: boolean;
   };
   onDismiss: () => void;
-  onHighlightStep: (step: OnboardingStep | null) => void;
+  activeStep: OnboardingStep | null;
 }
 
-const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ status, onDismiss, onHighlightStep }) => {
+const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ status, onDismiss, activeStep }) => {
   const { t } = useTranslation();
 
   const checklistItems = [
     { key: 'product', isComplete: status.product, title: t('onboardingStep1') },
-    { key: 'scenario', isComplete: status.scenario, title: t('onboardingStep2') },
     { key: 'storyboard', isComplete: status.storyboard, title: t('onboardingStep3') },
     { key: 'create', isComplete: status.create, title: t('onboardingStep4') },
   ];
 
-  const ListItem: React.FC<{ isComplete: boolean; title: string; stepKey: OnboardingStep }> = ({ isComplete, title, stepKey }) => (
-    <button 
-      className="flex items-center gap-3 w-full text-left p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
-      onClick={() => onHighlightStep(stepKey)}
-      onMouseLeave={() => onHighlightStep(null)}
-      onMouseEnter={() => onHighlightStep(stepKey)}
-    >
+  const ListItem: React.FC<{ isComplete: boolean; title: string; isActive: boolean }> = ({ isComplete, title, isActive }) => (
+    <div className={`flex items-center gap-3 w-full text-left p-1 rounded-md transition-colors ${isActive ? 'bg-blue-100 dark:bg-blue-900/50' : ''}`}>
       <div>
         {isComplete ? (
           <CheckCircle className="h-5 w-5 text-green-500" />
         ) : (
-          <Circle className="h-5 w-5 text-slate-400" />
+           isActive ? (
+             <div className="w-5 h-5 flex items-center justify-center">
+                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+             </div>
+           ) : (
+             <Circle className="h-5 w-5 text-slate-400" />
+           )
         )}
       </div>
       <div>
@@ -43,7 +42,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ status, onDis
           {title}
         </p>
       </div>
-    </button>
+    </div>
   );
   
   return (
@@ -64,7 +63,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ status, onDis
 
       <div className="mt-4 space-y-2">
         {checklistItems.map(item => (
-          <ListItem key={item.key} {...item} stepKey={item.key as OnboardingStep} />
+          <ListItem key={item.key} {...item} isActive={activeStep === item.key} />
         ))}
       </div>
     </div>

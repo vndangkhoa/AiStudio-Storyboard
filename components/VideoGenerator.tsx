@@ -13,6 +13,7 @@ import { Scene, Asset, AssetType, ScenarioType, AspectRatio, AivideoautoModel, L
 import { useTranslation } from '../contexts/LanguageContext';
 import BottomNavBar from './BottomNavBar';
 import ModelInfoModal from './ModelInfoModal';
+import VideoPreviewModal from './VideoPreviewModal';
 
 const VideoGenerator: React.FC = () => {
     const { t: translate, language, setLanguage } = useTranslation();
@@ -53,7 +54,6 @@ const VideoGenerator: React.FC = () => {
     const [progressMessages, setProgressMessages] = useState<Record<string, string>>({});
 
     const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('onboardingDismissed'));
-    const [highlightedStep, setHighlightedStep] = useState<OnboardingStep | null>(null);
     
     const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
     const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
@@ -71,6 +71,7 @@ const VideoGenerator: React.FC = () => {
     const [queuedGeneration, setQueuedGeneration] = useState<{ type: 'image' | 'video', sceneId: string } | null>(null);
 
     const [mobileView, setMobileView] = useState<'storyboard' | 'canvas' | 'assets'>('canvas');
+    const [previewingSceneId, setPreviewingSceneId] = useState<string | null>(null);
 
 
     const imageModels = models.filter(m => m.type === 'image');
@@ -510,10 +511,6 @@ const VideoGenerator: React.FC = () => {
         setShowOnboarding(false);
         localStorage.setItem('onboardingDismissed', 'true');
     };
-
-    const handleHighlightStep = (step: OnboardingStep | null) => {
-        setHighlightedStep(step);
-    }
     
     const handleVideoUploadForAnalysis = (file: File) => {
         setUploadedVideo(file);
@@ -613,14 +610,26 @@ const VideoGenerator: React.FC = () => {
 
     const onboardingStatus = {
         product: assets.some(a => a.type === 'product'),
-        scenario: true,
         storyboard: scenes.length > 0,
         create: scenes.some(s => s.imageUrl),
     };
 
+    let activeOnboardingStep: OnboardingStep | null = null;
+    if (showOnboarding) {
+        if (!onboardingStatus.product) {
+            activeOnboardingStep = 'product';
+        } else if (!onboardingStatus.storyboard) {
+            activeOnboardingStep = 'storyboard';
+        } else if (!onboardingStatus.create) {
+            activeOnboardingStep = 'create';
+        }
+    }
+
     if (isLoading) {
         return <div className="flex items-center justify-center h-screen w-screen">{translate('checkingApiKey')}</div>
     }
+
+    const sceneToPreview = scenes.find(s => s.id === previewingSceneId);
 
     return (
         <div className="flex flex-col h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
@@ -657,6 +666,11 @@ const VideoGenerator: React.FC = () => {
                 aivideoautoImageModels={imageModels}
                 aivideoautoVideoModels={videoModels}
              />
+             <VideoPreviewModal
+                isOpen={!!sceneToPreview}
+                videoUrl={sceneToPreview?.generatedVideoUrl || ''}
+                onClose={() => setPreviewingSceneId(null)}
+            />
 
             <div className="p-2 sm:p-4">
                  <Header
@@ -688,7 +702,7 @@ const VideoGenerator: React.FC = () => {
                         onAssetLockToggle={(id) => setAssets(p => p.map(a => a.assetId === id ? {...a, locked: !a.locked } : a))}
                         productDescription={productDescription}
                         onProductDescriptionChange={setProductDescription}
-                        highlightedStep={highlightedStep}
+                        activeOnboardingStep={activeOnboardingStep}
                         onboardingStatus={onboardingStatus}
                         onVideoUploadForAnalysis={handleVideoUploadForAnalysis}
                         uploadedVideoUrl={uploadedVideoUrl}
@@ -704,12 +718,13 @@ const VideoGenerator: React.FC = () => {
                         scenes={scenes}
                         onGenerateImage={handleGenerateImage}
                         onGenerateVideo={handleGenerateVideo}
+                        onPreviewVideo={setPreviewingSceneId}
                         generatingImageIds={generatingImageIds}
                         generatingVideoIds={generatingVideoIds}
                         aspectRatio={aspectRatio}
                         progressMessages={progressMessages}
                         onboardingStatus={onboardingStatus}
-                        highlightedStep={highlightedStep}
+                        activeOnboardingStep={activeOnboardingStep}
                         onParaphraseAndGenerateImage={handleParaphraseAndGenerateImage}
                         onParaphraseAndGenerateVideo={handleParaphraseAndGenerateVideo}
                         paraphrasingSceneId={paraphrasingSceneId}
@@ -730,8 +745,7 @@ const VideoGenerator: React.FC = () => {
                         showOnboarding={showOnboarding}
                         onboardingStatus={onboardingStatus}
                         onDismissOnboarding={handleDismissOnboarding}
-                        onHighlightStep={handleHighlightStep}
-                        highlightedStep={highlightedStep}
+                        activeOnboardingStep={activeOnboardingStep}
                     />
                 </div>
             </div>

@@ -59,6 +59,7 @@ export const translations: Record<string, Record<string, string>> = {
     paraphraseAndRegenerateVideo: 'Paraphrase & Regenerate Video',
     paraphrasingPrompt: 'Paraphrasing prompt...',
     downloadImage: 'Download Image',
+    previewVideo: 'Preview Video',
 
 
     // RightSidebar
@@ -138,7 +139,6 @@ export const translations: Record<string, Record<string, string>> = {
     onboardingTitle: 'Getting Started',
     onboardingDismiss: 'Dismiss',
     onboardingStep1: 'Define Your Product',
-    onboardingStep2: 'Choose Your Story',
     onboardingStep3: 'Generate Storyboard',
     onboardingStep4: 'Bring it to Life',
 
@@ -217,6 +217,7 @@ export const translations: Record<string, Record<string, string>> = {
     paraphraseAndRegenerateVideo: 'Diễn giải & Tạo lại video',
     paraphrasingPrompt: 'Đang diễn giải lại prompt...',
     downloadImage: 'Tải xuống ảnh',
+    previewVideo: 'Xem trước Video',
     
     // RightSidebar
     assetsTitle: 'Tài sản & Điều khiển',
@@ -292,7 +293,6 @@ export const translations: Record<string, Record<string, string>> = {
     onboardingTitle: 'Bắt đầu',
     onboardingDismiss: 'Bỏ qua',
     onboardingStep1: 'Xác định sản phẩm',
-    onboardingStep2: 'Chọn câu chuyện',
     onboardingStep3: 'Tạo bảng phân cảnh',
     onboardingStep4: 'Hiện thực hóa',
 

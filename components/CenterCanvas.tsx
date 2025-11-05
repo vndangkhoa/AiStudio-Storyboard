@@ -1,19 +1,20 @@
 import React from 'react';
 import { Scene, AspectRatio, OnboardingStep } from '../types';
-import { Loader2, Image as ImageIconLucide, Film, Sparkles, Download, CheckCircle, Circle } from 'lucide-react';
+import { Loader2, Image as ImageIconLucide, Film, Sparkles, Download, CheckCircle, Circle, Play } from 'lucide-react';
 import { useTranslation } from '../contexts/LanguageContext';
 
 interface CenterCanvasProps {
     scenes: Scene[];
     onGenerateImage: (sceneId: string, baseImageUrl?: string) => void;
     onGenerateVideo: (sceneId: string) => void;
+    onPreviewVideo: (sceneId: string) => void;
     generatingImageIds: Set<string>;
     generatingVideoIds: Set<string>;
     aspectRatio: AspectRatio;
     progressMessages: Record<string, string>;
     // Onboarding
-    onboardingStatus: { product: boolean; scenario: boolean; storyboard: boolean; create: boolean };
-    highlightedStep: OnboardingStep | null;
+    onboardingStatus: { product: boolean; storyboard: boolean; create: boolean };
+    activeOnboardingStep: OnboardingStep | null;
     // New Paraphrasing Props
     onParaphraseAndGenerateImage: (sceneId: string) => void;
     onParaphraseAndGenerateVideo: (sceneId: string) => void;
@@ -32,8 +33,8 @@ const NextStepIndicator: React.FC<{isComplete: boolean, isActive: boolean}> = ({
 
 
 const CenterCanvas: React.FC<CenterCanvasProps> = ({ 
-    scenes, onGenerateImage, onGenerateVideo, generatingImageIds, generatingVideoIds, aspectRatio, progressMessages,
-    onboardingStatus, highlightedStep,
+    scenes, onGenerateImage, onGenerateVideo, onPreviewVideo, generatingImageIds, generatingVideoIds, aspectRatio, progressMessages,
+    onboardingStatus, activeOnboardingStep,
     onParaphraseAndGenerateImage, onParaphraseAndGenerateVideo, paraphrasingSceneId
 }) => {
     const { t } = useTranslation();
@@ -41,7 +42,7 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({
     const getButtonState = (scene: Scene, isFirstScene: boolean) => {
         const isThisImageLoading = generatingImageIds.has(scene.id) || paraphrasingSceneId === scene.id;
         const isThisVideoLoading = generatingVideoIds.has(scene.id) || paraphrasingSceneId === scene.id;
-        const showOnboardingIndicator = !onboardingStatus.create && isFirstScene && onboardingStatus.storyboard;
+        const showOnboardingIndicator = activeOnboardingStep === 'create' && isFirstScene;
         
         const nextStepIcon = <div className="flex items-center mr-1"><NextStepIndicator isComplete={false} isActive={true} /></div>;
 
@@ -60,7 +61,7 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({
     const aspectClass = aspectRatio === AspectRatio.Landscape ? 'aspect-video' : 'aspect-[9/16]';
 
     return (
-        <main className={`p-4 rounded-lg shadow-inner overflow-y-auto transition-all duration-300 h-full ${highlightedStep === 'create' ? 'ring-2 ring-blue-500 ring-offset-4 ring-offset-slate-100 dark:ring-offset-slate-900' : 'bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700'}`}>
+        <main className={`p-4 rounded-lg shadow-inner overflow-y-auto transition-all duration-300 h-full ${activeOnboardingStep === 'create' ? 'ring-2 ring-blue-500 ring-offset-4 ring-offset-slate-100 dark:ring-offset-slate-900' : 'bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700'}`}>
             <h2 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">🎨 {t('canvasTitle')}</h2>
             {scenes.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center text-slate-500 dark:text-slate-400">
@@ -79,14 +80,24 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({
 
                     return (
                         <div key={scene.id} className={`${aspectClass} bg-white dark:bg-slate-900/50 rounded-md flex flex-col items-center justify-center p-2 relative group border-2 border-slate-200 dark:border-slate-700`}>
-                            {scene.generatedVideoUrl ? (
-                                 <video src={scene.generatedVideoUrl} controls autoPlay loop className="w-full h-full object-cover rounded">Your browser does not support the video tag.</video>
-                            ) : scene.imageUrl ? (
+                            {scene.imageUrl ? (
                                 <img src={scene.imageUrl} alt={scene.imagePrompt} className="w-full h-full object-cover rounded"/>
                             ) : (
                                 <div className="text-center">
                                     <ImageIconLucide className="h-8 w-8 text-slate-400 dark:text-slate-500 mx-auto mb-2" />
                                     <p className="text-xs text-slate-500 dark:text-slate-400">{t('noImageGenerated')}</p>
+                                </div>
+                            )}
+
+                            {scene.generatedVideoUrl && !isVideoLoading && (
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded">
+                                    <button 
+                                        onClick={() => onPreviewVideo(scene.id)}
+                                        title={t('previewVideo')}
+                                        className="p-4 bg-white/80 backdrop-blur-sm rounded-full text-slate-900 hover:bg-white scale-100 hover:scale-110 transition-transform"
+                                    >
+                                        <Play className="h-6 w-6 fill-current"/>
+                                    </button>
                                 </div>
                             )}
                             
@@ -99,10 +110,10 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({
                                  </div>
                             )}
 
-                            {!(isImageLoading || isVideoLoading) && (
+                            {!(isImageLoading || isVideoLoading) && !scene.generatedVideoUrl && (
                                 <div className="absolute inset-0 bg-black/50 flex flex-wrap items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity rounded p-2">
                                     <div className="flex items-center justify-center gap-2">
-                                        {scene.imageUrl && !scene.generatedVideoUrl && (
+                                        {scene.imageUrl && (
                                             <button 
                                                 onClick={() => onParaphraseAndGenerateImage(scene.id)} 
                                                 title={t('paraphraseAndRegenerateImage')}
