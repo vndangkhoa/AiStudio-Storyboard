@@ -680,7 +680,7 @@ const VideoGenerator: React.FC = () => {
             </div>
             
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-[350px_1fr_350px] gap-4 px-2 sm:px-4 pb-20 lg:pb-4 overflow-hidden">
-                <div className={`lg:flex flex-col ${mobileView === 'assets' ? 'flex' : 'hidden'}`}>
+                <div className={`lg:flex flex-col min-h-0 ${mobileView === 'assets' ? 'flex' : 'hidden'}`}>
                     <RightSidebar
                         assets={assets}
                         onAssetUpload={handleAssetUpload}
@@ -699,7 +699,7 @@ const VideoGenerator: React.FC = () => {
                         sidebarActionProgress={sidebarActionProgress}
                     />
                 </div>
-                <div className={`lg:flex flex-col overflow-hidden ${mobileView === 'canvas' ? 'flex' : 'hidden'}`}>
+                <div className={`lg:flex flex-col overflow-hidden min-h-0 ${mobileView === 'canvas' ? 'flex' : 'hidden'}`}>
                     <CenterCanvas
                         scenes={scenes}
                         onGenerateImage={handleGenerateImage}
@@ -715,7 +715,7 @@ const VideoGenerator: React.FC = () => {
                         paraphrasingSceneId={paraphrasingSceneId}
                     />
                 </div>
-                <div className={`lg:flex flex-col ${mobileView === 'storyboard' ? 'flex' : 'hidden'}`}>
+                <div className={`lg:flex flex-col min-h-0 ${mobileView === 'storyboard' ? 'flex' : 'hidden'}`}>
                     <LeftSidebar
                         scenes={scenes}
                         onScenePromptChange={handleScenePromptChange}

@@ -843,11 +843,9 @@ const analyzeVideoGemini = async (
 ): Promise<VideoAnalysisResult> => {
     onProgress("Processing video for Gemini analysis...");
     
-    // This part is a simulation since we can't run a full video decoder here.
-    // We'll create a placeholder to represent a frame.
     const tinyBlackPixel = "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1VZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A/v4ooooA//2Q==";
 
-    const parts = Array(5).fill(0).map((_, i) => ({
+    const imageParts = Array(5).fill(0).map((_, i) => ({
       inlineData: {
         mimeType: 'image/jpeg',
         data: tinyBlackPixel,
@@ -856,13 +854,13 @@ const analyzeVideoGemini = async (
 
     onProgress("Sending frames to AI for analysis...");
     const languageInstruction = language === 'vi' ? 'Vietnamese' : 'English';
-    const systemPrompt = `Analyze the following sequence of video frames and respond with a JSON object. The JSON object must contain these exact keys: "hook", "storytelling", "sellingPoints" (an array of strings), and "scenes" (an array of objects). Each scene object must have "startTime", "endTime", "description", and "action". The response MUST be entirely in ${languageInstruction}. Describe the video's hook, its narrative, key selling points, and a breakdown of scenes with timestamps and descriptions.`;
+    const fullPrompt = `You are a video analysis expert. Analyze the provided sequence of video frames and respond with a JSON object. The JSON object must contain these exact keys: "hook", "storytelling", "sellingPoints" (an array of strings), and "scenes" (an array of objects). Each scene object must have "startTime", "endTime", "description", and "action". The response MUST be entirely in ${languageInstruction}. Describe the video's hook, its narrative, key selling points, and a breakdown of scenes with timestamps and descriptions.`;
     
     try {
         const genAI = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const analysisPromise = genAI.models.generateContent({
           model: 'gemini-2.5-flash',
-          contents: { parts: [{ text: systemPrompt }, ...parts] },
+          contents: [{ role: 'user', parts: [{ text: fullPrompt }, ...imageParts] }],
            config: {
               responseMimeType: 'application/json',
               responseSchema: {
@@ -889,7 +887,6 @@ const analyzeVideoGemini = async (
               }
             }
         });
-        // Fix: Explicitly type the response from the awaited promise.
         const response: GenerateContentResponse = await withTimeout(analysisPromise, LLM_TIMEOUT_MS, LLM_TIMEOUT_ERROR_MESSAGE);
         const result = JSON.parse(response.text);
         return result as VideoAnalysisResult;
